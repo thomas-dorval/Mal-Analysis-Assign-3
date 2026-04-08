@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Mal-Analysis-Assign-3")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+e150bb491535c33df312d6378dbb709b01e7ff7b")]
 [assembly: System.Reflection.AssemblyProductAttribute("Mal-Analysis-Assign-3")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Mal-Analysis-Assign-3")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

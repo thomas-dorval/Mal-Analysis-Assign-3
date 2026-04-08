@@ -154,7 +154,19 @@ static (bool Success, string ErrorOutput) RunStrace(string stracePath, string ta
         return (false, "Unable to start strace process.");
 
     var error = proc.StandardError.ReadToEnd();
-    proc.WaitForExit();
+    const int timeoutMs = 60000; // 60 seconds
+    if (!proc.WaitForExit(timeoutMs))
+    {
+        try
+        {
+            proc.Kill();
+            proc.WaitForExit(5000);
+        }
+        catch
+        {
+            // Kill may fail; best effort
+        }
+    }
 
     return (proc.ExitCode == 0 || proc.ExitCode == 1, error);
 }
@@ -170,7 +182,7 @@ static TraceReport AnalyzeTrace(string processName, string[] traceLines)
     var tempUnlinkRegex = new Regex("\\b(unlink|unlinkat|remove|rmdir)\\(.*\\\"(?<path>(/tmp|/var/tmp|/dev/shm|/run/user/[^/]+/tmp)/[^\\\"]+)\\\"", RegexOptions.Compiled);
     var browserTraverseRegex = new Regex("\\b(open|stat|access|read|lstat)\\(.*\\\"(?<path>/((root|home/[^/]+)/(\\.(mozilla/firefox|config/google-chrome|config/chromium|config/BraveSoftware/Brave-Browser)|\\.cache/(mozilla/firefox|google-chrome|chromium))/[^\\\"]*))\\\"", RegexOptions.Compiled);
     var textDataRegex = new Regex("\\b(open|read)\\(.*\\\"(?<path>[^\\\"]+\\.(txt|log|json|csv|html|htm|md|ini|conf|sqlite|db))\\\"", RegexOptions.Compiled);
-    var recentFileRegex = new Regex("\\b(stat|lstat|access|openat|open)\\(.*\\\"(?<path>[^\\\"]*(recently-used|recent|new|tmp|cache)[^\\\"]*)\\\"", RegexOptions.Compiled);
+    var recentFileRegex = new Regex("execve\\(\\\".*\\/(find|ls)\\\".*-mmin", RegexOptions.Compiled);
     var writeRootRegex = new Regex("\\b(open|creat|rename|truncate|unlink|link|symlink)\\(.*\\\"(?<path>/((sbin|bin|usr/bin|usr/sbin|usr/local/bin|opt)/[^\\\"]+))\\\"", RegexOptions.Compiled);
     var connectRegex = new Regex("\\bconnect\\([^,]+, \\{[^}]*sin_addr=inet_addr\\(\\\"(?<ip>[^\\\"]+)\\\"\\)", RegexOptions.Compiled);
     var sendRegex = new Regex("\\b(sendto|sendmsg|write|writev)\\([^,]+, .*\\)", RegexOptions.Compiled);
@@ -236,13 +248,13 @@ static TraceReport AnalyzeTrace(string processName, string[] traceLines)
 
         if (tempCreateRegex.IsMatch(line))
         {
-            report.AddFlag("temporary file creation", line.Trim(), "Created or opened a temporary file in a runtime scratch directory");
+            report.AddFlag("created a temporary file in a runtime scratch directory", line.Trim(), string.Empty);
             sawTempLifeCycle = true;
         }
 
         if (tempUnlinkRegex.IsMatch(line))
         {
-            report.AddFlag("temporary file removal", line.Trim(), "Removed a temporary file from a runtime scratch directory");
+            report.AddFlag("removed a temporary file from a runtime scratch directory", line.Trim(), string.Empty);
             sawTempLifeCycle = true;
         }
 
@@ -261,23 +273,28 @@ static TraceReport AnalyzeTrace(string processName, string[] traceLines)
         if (textDataRegex.IsMatch(line))
         {
             sawTextDataScan = true;
-            report.AddFlag("text data access", line.Trim(), "Read a text or data file that may contain user information");
+            report.AddFlag("accessed a text or data file that may contain user information", line.Trim(), string.Empty);
         }
 
         if (recentFileRegex.IsMatch(line))
         {
-            report.AddFlag("recent file discovery", line.Trim(), "Accessed recently-created or recently-used files");
+            report.AddFlag("detected use of find or ls with -mmin flag to identify recently modified files", line.Trim(), string.Empty);
+        }
+
+        if (line.Contains("openat(") && (line.Contains("/etc/cron.weekly/") || line.Contains("/bin/")) && line.Contains("write") && line.Contains("ELF"))
+        {
+            report.AddFinding("rootkit", line.Trim(), "Detected self-replication by writing executable files to system directories and cron jobs");
         }
     }
 
     if (sawSensitiveTemp && sawTempLifeCycle)
     {
-        report.AddFlag("sensitive-temps-exfiltration", string.Empty, "Copied sensitive or temporary data into temp files and later removed them, which may indicate exfiltration preparation");
+        report.AddFlag("detected sensitive data exfiltration through temporary files", string.Empty, "Copied sensitive or temporary data into temp files and later removed them, which may indicate exfiltration preparation");
     }
 
     if (sawBrowserTraversal && sawTextDataScan)
     {
-        report.AddFlag("browser-text-data-scan", string.Empty, "Scanned browser-related directories and opened text/data files, which is often associated with spyware behavior");
+        report.AddFlag("detected browser profile data scanning behavior", string.Empty, "Scanned browser-related directories and opened text/data files, which is often associated with spyware behavior");
     }
 
     if (!report.FoundFindings)
@@ -344,6 +361,10 @@ class TraceReport
         Flags.Add(flag);
         if (!string.IsNullOrEmpty(summary))
             Summaries.Add($"{summary}" + (string.IsNullOrEmpty(line) ? string.Empty : $" -> {line}"));
+        else if (!string.IsNullOrEmpty(line))
+            Summaries.Add($"Flag: {flag} -> {line}");
+        else
+            Summaries.Add($"Flag: {flag}");
     }
 
     public void AddSuspiciousLine(string line)
