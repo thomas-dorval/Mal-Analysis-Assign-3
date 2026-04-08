@@ -154,7 +154,7 @@ static (bool Success, string ErrorOutput) RunStrace(string stracePath, string ta
         return (false, "Unable to start strace process.");
 
     var error = proc.StandardError.ReadToEnd();
-    const int timeoutMs = 60000; // 60 seconds
+    const int timeoutMs = 10000; // 10 seconds
     if (!proc.WaitForExit(timeoutMs))
     {
         try
