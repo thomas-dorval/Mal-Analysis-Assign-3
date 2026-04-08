@@ -15,7 +15,7 @@ A simple C# CLI tool that runs `strace` on a target executable and looks for sus
 ## Build
 
 ```bash
-cd /home/tjdorval/git/Mal-Analysis-Assign-3
+cd ../Mal-Analysis-Assign-3
 dotnet build
 ```
 
