@@ -93,13 +93,19 @@ static (string[] Lines, string? Pid) GatherTraceFiles(string traceFile)
             pid = ext;
     }
 
-    var allLines = new List<string>();
+    var uniqueLines = new HashSet<string>();
+    const int maxLines = 50000; // Limit to prevent excessive processing
     foreach (var path in traceFiles.Distinct())
     {
-        allLines.AddRange(File.ReadAllLines(path));
+        if (uniqueLines.Count >= maxLines) break;
+        foreach (var line in File.ReadLines(path))
+        {
+            uniqueLines.Add(line.Trim());
+            if (uniqueLines.Count >= maxLines) break;
+        }
     }
 
-    return (allLines.ToArray(), pid);
+    return (uniqueLines.ToArray(), pid);
 }
 
 static string? FindExecutable(string name)
@@ -134,13 +140,14 @@ static (bool Success, string ErrorOutput) RunStrace(string stracePath, string ta
 {
     var psi = new ProcessStartInfo
     {
-        FileName = stracePath,
+        FileName = "sudo",
         RedirectStandardOutput = true,
         RedirectStandardError = true,
         UseShellExecute = false,
         CreateNoWindow = true,
     };
 
+    psi.ArgumentList.Add(stracePath);
     psi.ArgumentList.Add("-ff");
     psi.ArgumentList.Add("-e");
     psi.ArgumentList.Add("trace=openat,read,write,unlink,chmod,chown,connect,file,network,process");
@@ -159,8 +166,12 @@ static (bool Success, string ErrorOutput) RunStrace(string stracePath, string ta
     {
         try
         {
-            proc.Kill();
-            proc.WaitForExit(5000);
+            proc.Kill(true); // Force kill entire process tree
+            if (!proc.WaitForExit(2000))
+            {
+                proc.Kill(); // Try again
+                proc.WaitForExit(1000);
+            }
         }
         catch
         {

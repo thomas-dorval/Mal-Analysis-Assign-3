@@ -12,15 +12,18 @@ A simple C# CLI tool that runs `strace` on a target executable and looks for sus
 
 ## Features
 
-- Automatically kills strace after 60 seconds to ensure analysis completes
+- Automatically kills strace after 10 seconds to ensure analysis completes
 - Extracts PID and process name from strace output
 - Reports malware categories: `spyware`, `rootkit`, `reverse shell`, etc.
 - Provides detailed behavioral evidence from strace syscalls
+- Runs strace with sudo for complete syscall visibility
+- Handles large strace outputs by deduplicating and limiting lines
 
 ## Requirements
 
 - .NET 10 SDK
 - `strace` installed and available in `PATH`
+- `sudo` configured for passwordless execution (recommended for complete syscall tracing)
 - Linux environment
 
 ## Build
