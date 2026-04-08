@@ -1,0 +1,23 @@
+{
+  "runtimeTarget": {
+    "name": ".NETCoreApp,Version=v10.0",
+    "signature": ""
+  },
+  "compilationOptions": {},
+  "targets": {
+    ".NETCoreApp,Version=v10.0": {
+      "Mal-Analysis-Assign-3/1.0.0": {
+        "runtime": {
+          "Mal-Analysis-Assign-3.dll": {}
+        }
+      }
+    }
+  },
+  "libraries": {
+    "Mal-Analysis-Assign-3/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    }
+  }
+}

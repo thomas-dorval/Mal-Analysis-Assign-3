@@ -1,0 +1,14 @@
+/home/tjdorval/git/Mal-Analysis-Assign-3/obj/Debug/net10.0/Mal-Analysis-Assign-3.GeneratedMSBuildEditorConfig.editorconfig
+/home/tjdorval/git/Mal-Analysis-Assign-3/obj/Debug/net10.0/Mal-Analysis-Assign-3.AssemblyInfoInputs.cache
+/home/tjdorval/git/Mal-Analysis-Assign-3/obj/Debug/net10.0/Mal-Analysis-Assign-3.AssemblyInfo.cs
+/home/tjdorval/git/Mal-Analysis-Assign-3/obj/Debug/net10.0/Mal-Analysis-Assign-3.csproj.CoreCompileInputs.cache
+/home/tjdorval/git/Mal-Analysis-Assign-3/bin/Debug/net10.0/Mal-Analysis-Assign-3
+/home/tjdorval/git/Mal-Analysis-Assign-3/bin/Debug/net10.0/Mal-Analysis-Assign-3.deps.json
+/home/tjdorval/git/Mal-Analysis-Assign-3/bin/Debug/net10.0/Mal-Analysis-Assign-3.runtimeconfig.json
+/home/tjdorval/git/Mal-Analysis-Assign-3/bin/Debug/net10.0/Mal-Analysis-Assign-3.dll
+/home/tjdorval/git/Mal-Analysis-Assign-3/bin/Debug/net10.0/Mal-Analysis-Assign-3.pdb
+/home/tjdorval/git/Mal-Analysis-Assign-3/obj/Debug/net10.0/Mal-Analysis-Assign-3.dll
+/home/tjdorval/git/Mal-Analysis-Assign-3/obj/Debug/net10.0/refint/Mal-Analysis-Assign-3.dll
+/home/tjdorval/git/Mal-Analysis-Assign-3/obj/Debug/net10.0/Mal-Analysis-Assign-3.pdb
+/home/tjdorval/git/Mal-Analysis-Assign-3/obj/Debug/net10.0/Mal-Analysis-Assign-3.genruntimeconfig.cache
+/home/tjdorval/git/Mal-Analysis-Assign-3/obj/Debug/net10.0/ref/Mal-Analysis-Assign-3.dll
